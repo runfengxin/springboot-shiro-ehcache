@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.demo.shiroehcache.dao.PermissionMapper">
+  <resultMap id="BaseResultMap" type="com.demo.shiroehcache.pojo.Permission">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="menu_name" jdbcType="VARCHAR" property="menuName" />
+    <result column="menu_code" jdbcType="VARCHAR" property="menuCode" />
+    <result column="permission_name" jdbcType="VARCHAR" property="permissionName" />
+    <result column="permission_code" jdbcType="VARCHAR" property="permissionCode" />
+    <result column="required" jdbcType="INTEGER" property="required" />
+  </resultMap>
+
+
+    <resultMap id="permissionMap" type="com.demo.shiroehcache.pojo.One2Many">
+        <id column="userId" property="userId"/>
+        <result column="username" property="username"/>
+        <result column="roleId" property="roleId"/>
+        <result column="roleName" property="roleName"/>
+        <collection property="menuList" ofType="String">
+            <id column="menuCode" property="menuCode"/>
+        </collection>
+        <collection property="permissionList" ofType="String">
+            <id column="permissionCode" property="permissionCode"/>
+        </collection>
+    </resultMap>
+    <select id="getUserPermission" resultMap="permissionMap" parameterType="java.lang.String">
+        SELECT
+        u.uid userId,
+        u.username username,
+        r.rid roleId,
+        r.`name` roleName,
+        p.menu_code menuCode,
+        p.permission_code permissionCode
+        FROM t_user u
+				LEFT JOIN t_user_role ur on ur.uid=u.uid
+        LEFT JOIN t_role r ON r.rid =ur.rid
+        LEFT JOIN t_role_permission rp ON r.rid = rp.rid
+        LEFT JOIN t_permission p ON rp.pid = p.id
+        WHERE u.username=#{username}
+    </select>
+    <select id="getAllMenu" resultType="java.lang.String">
+        SELECT p.menu_code menuCode
+        FROM t_permission p
+        ORDER BY p.id
+    </select>
+
+    <select id="getAllPermission" resultType="java.lang.String">
+        SELECT p.permission_code permissionCode
+        FROM t_permission p
+        ORDER BY p.id
+    </select>
+</mapper>
